@@ -1,0 +1,120 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+:root { --ww-grid-line: rgba(15, 23, 42, 0.07); }
+.dark { --ww-grid-line: rgba(255, 255, 255, 0.04); }
+
+.ww-grid {
+  background-image:
+    linear-gradient(var(--ww-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ww-grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: ww-grid-move 6s linear infinite;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== WattWise login animations ===== */
+@keyframes ww-fade-up {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ww-grid-move {
+  from { background-position: 0 0; }
+  to { background-position: 48px 48px; }
+}
+@keyframes ww-glow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.2); }
+}
+@keyframes ww-shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-5px); }
+  40%, 60% { transform: translateX(5px); }
+}
+@keyframes ww-shine {
+  from { transform: translateX(-120%) skewX(-20deg); }
+  to { transform: translateX(220%) skewX(-20deg); }
+}
+
+.ww-fade-up { animation: ww-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.ww-shake { animation: ww-shake 0.5s ease-in-out; }
+.ww-glow { animation: ww-glow 6s ease-in-out infinite; }
+
+.ww-grid {
+  background-image:
+    linear-gradient(var(--ww-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ww-grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: ww-grid-move 6s linear infinite;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+.ww-btn { position: relative; overflow: hidden; }
+.ww-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-120%) skewX(-20deg);
+}
+.ww-btn:hover::after { animation: ww-shine 0.9s ease; }
+
+/* ===== WattWise design tokens ===== */
+:root {
+  --ww-bg: #f3f6f5;
+  --ww-panel: #ffffff;
+  --ww-panel2: #eef3f1;
+  --ww-border: #d9e3df;
+  --ww-text: #0e1d18;
+  --ww-muted: #60746d;
+  --ww-accent: #059669;
+}
+.dark {
+  --ww-bg: #070d17;
+  --ww-panel: #0c1523;
+  --ww-panel2: #111e30;
+  --ww-border: #1c2c3f;
+  --ww-text: #e8f1ee;
+  --ww-muted: #8497a3;
+  --ww-accent: #10b981;
+}
+.ww-shell { background: var(--ww-bg); color: var(--ww-text); }
+.ww-panel { background: var(--ww-panel); border: 1px solid var(--ww-border); border-radius: 1.25rem; }
+.ww-panel-2 { background: var(--ww-panel2); border: 1px solid var(--ww-border); }
+.ww-muted { color: var(--ww-muted); }
+.ww-mono { font-family: var(--font-geist-mono), ui-monospace, monospace; }
+.ww-eyebrow {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ww-muted);
+}
+.ww-skeleton { background: var(--ww-panel2); border-radius: 1rem; }
