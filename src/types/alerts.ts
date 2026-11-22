@@ -36,3 +36,14 @@ export type InsightsData = {
   monthlySavingsBdt: number;
   recordsAnalyzed: number;
 };
+
+export type ThresholdRow = {
+  _id: string;
+  scope: "building" | "meter";
+  targetName: string;
+  buildingName?: string;
+  period: "hourly" | "daily";
+  limitKwh: number;
+  isActive: boolean;
+  createdAt: string;
+};

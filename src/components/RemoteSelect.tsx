@@ -3,6 +3,8 @@
 import { useList } from "@/hooks/useList";
 import { inputCls } from "./FormField";
 
+type Opt = { _id: string } & Record<string, unknown>;
+
 export default function RemoteSelect({
   endpoint,
   params = {},
@@ -11,6 +13,7 @@ export default function RemoteSelect({
   placeholder,
   required,
   className,
+  labelKey = "name",
 }: {
   endpoint: string;
   params?: Record<string, string | number>;
@@ -19,8 +22,9 @@ export default function RemoteSelect({
   placeholder: string;
   required?: boolean;
   className?: string;
+  labelKey?: string;
 }) {
-  const { rows, loading } = useList<{ _id: string; name: string }>(endpoint, {
+  const { rows, loading } = useList<Opt>(endpoint, {
     page: 1,
     limit: 100,
     ...params,
@@ -37,7 +41,7 @@ export default function RemoteSelect({
       <option value="">{placeholder}</option>
       {rows.map((r) => (
         <option key={r._id} value={r._id}>
-          {r.name}
+          {String(r[labelKey] ?? "")}
         </option>
       ))}
     </select>

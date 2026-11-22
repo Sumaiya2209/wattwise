@@ -12,6 +12,8 @@ import RemoteSelect from "@/components/RemoteSelect";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useList } from "@/hooks/useList";
 import { sendJson } from "@/lib/client-api";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { useConfirmDelete } from "@/hooks/useConfirmDelete";
 
 type DeptRow = {
   _id: string;
@@ -27,7 +29,7 @@ export default function DepartmentsClient() {
   const [page, setPage] = useState(1);
   const debounced = useDebounce(search);
 
-  const { rows, total, totalPages, loading, error, refresh } = useList<DeptRow>("/api/departments", {
+  const { rows, total, totalPages, loading, error, refresh, removeRow } = useList<DeptRow>("/api/departments", {
     page,
     limit: 10,
     search: debounced,
@@ -41,7 +43,6 @@ export default function DepartmentsClient() {
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
-  const [actionError, setActionError] = useState("");
 
   function openForm(d: DeptRow | null) {
     setEditing(d);
@@ -67,13 +68,14 @@ export default function DepartmentsClient() {
     refresh();
   }
 
-  async function remove(d: DeptRow) {
-    if (!confirm(`Delete "${d.name}"?`)) return;
-    setActionError("");
+  const del = useConfirmDelete<DeptRow>(async (d) => {
     const r = await sendJson(`/api/departments/${d._id}`, "DELETE");
-    if (!r.ok) return setActionError(r.error);
-    refresh();
-  }
+    if (!r.ok) return r.error;
+    removeRow(d._id);
+    if (rows.length === 1 && page > 1) setPage(page - 1);
+    else refresh();
+    return null;
+  });
 
   const columns: Column<DeptRow>[] = [
     { key: "name", header: "Department" },
@@ -110,7 +112,6 @@ export default function DepartmentsClient() {
           className={`${inputCls} sm:w-56`}
         />
       </div>
-      {actionError && <div className="mb-4"><InlineError message={actionError} /></div>}
 
       <DataTable
         columns={columns}
@@ -122,7 +123,7 @@ export default function DepartmentsClient() {
         total={total}
         onPageChange={setPage}
         emptyText="No departments found"
-        actions={(d) => <RowActions onEdit={() => openForm(d)} onDelete={() => remove(d)} />}
+        actions={(d) => <RowActions onEdit={() => openForm(d)} onDelete={() => del.ask(d)} />}
       />
 
       <Modal open={open} title={editing ? "Edit Department" : "Add Department"} onClose={() => setOpen(false)}>
@@ -163,6 +164,15 @@ export default function DepartmentsClient() {
           <FormButtons saving={saving} submitLabel={editing ? "Save changes" : "Create"} onCancel={() => setOpen(false)} />
         </form>
       </Modal>
+      <ConfirmDialog
+        open={!!del.target}
+        title="Delete department?"
+        message={`"${del.target?.name}" will be permanently deleted. This can't be undone.`}
+        busy={del.busy}
+        error={del.error}
+        onConfirm={del.confirm}
+        onCancel={del.cancel}
+      />
     </div>
   );
 }

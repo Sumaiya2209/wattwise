@@ -11,6 +11,8 @@ import RowActions from "@/components/RowActions";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useList } from "@/hooks/useList";
 import { sendJson } from "@/lib/client-api";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { useConfirmDelete } from "@/hooks/useConfirmDelete";
 
 type Building = {
   _id: string;
@@ -24,7 +26,7 @@ export default function BuildingsClient() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const debounced = useDebounce(search);
-  const { rows, total, totalPages, loading, error, refresh } = useList<Building>("/api/buildings", {
+  const { rows, total, totalPages, loading, error, refresh, removeRow } = useList<Building>("/api/buildings", {
     page,
     limit: 10,
     search: debounced,
@@ -36,7 +38,6 @@ export default function BuildingsClient() {
   const [address, setAddress] = useState("");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
-  const [actionError, setActionError] = useState("");
 
   function openForm(b: Building | null) {
     setEditing(b);
@@ -60,13 +61,14 @@ export default function BuildingsClient() {
     refresh();
   }
 
-  async function remove(b: Building) {
-    if (!confirm(`Delete "${b.name}"?`)) return;
-    setActionError("");
+  const del = useConfirmDelete<Building>(async (b) => {
     const r = await sendJson(`/api/buildings/${b._id}`, "DELETE");
-    if (!r.ok) return setActionError(r.error);
-    refresh();
-  }
+    if (!r.ok) return r.error;
+    removeRow(b._id);
+    if (rows.length === 1 && page > 1) setPage(page - 1);
+    else refresh();
+    return null;
+  });
 
   const columns: Column<Building>[] = [
     { key: "name", header: "Building" },
@@ -93,7 +95,6 @@ export default function BuildingsClient() {
           placeholder="Search buildings..."
         />
       </div>
-      {actionError && <div className="mb-4"><InlineError message={actionError} /></div>}
 
       <DataTable
         columns={columns}
@@ -105,7 +106,7 @@ export default function BuildingsClient() {
         total={total}
         onPageChange={setPage}
         emptyText="No buildings found"
-        actions={(b) => <RowActions onEdit={() => openForm(b)} onDelete={() => remove(b)} />}
+        actions={(b) => <RowActions onEdit={() => openForm(b)} onDelete={() => del.ask(b)} />}
       />
 
       <Modal open={open} title={editing ? "Edit Building" : "Add Building"} onClose={() => setOpen(false)}>
@@ -120,6 +121,15 @@ export default function BuildingsClient() {
           <FormButtons saving={saving} submitLabel={editing ? "Save changes" : "Create"} onCancel={() => setOpen(false)} />
         </form>
       </Modal>
+      <ConfirmDialog
+        open={!!del.target}
+        title="Delete building?"
+        message={`"${del.target?.name}" will be permanently deleted. This can't be undone.`}
+        busy={del.busy}
+        error={del.error}
+        onConfirm={del.confirm}
+        onCancel={del.cancel}
+      />
     </div>
   );
 }

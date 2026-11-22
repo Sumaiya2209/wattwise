@@ -9,7 +9,10 @@ export type ListResult<T> = {
   totalPages: number;
 };
 
-export function useList<T>(endpoint: string, params: Record<string, string | number>) {
+export function useList<T extends { _id: string }>(
+  endpoint: string,
+  params: Record<string, string | number>
+) {
   const qs = new URLSearchParams(
     Object.entries(params).map(([k, v]) => [k, String(v)])
   ).toString();
@@ -43,6 +46,22 @@ export function useList<T>(endpoint: string, params: Record<string, string | num
 
   const refresh = useCallback(() => setReload((r) => r + 1), []);
 
+  // Delete er por row sathe sathe list theke soriye dey (server sync pore hoy)
+  const removeRow = useCallback((id: string) => {
+    setState((s) =>
+      s.result
+        ? {
+            ...s,
+            result: {
+              ...s.result,
+              data: s.result.data.filter((r) => r._id !== id),
+              total: Math.max(0, s.result.total - 1),
+            },
+          }
+        : s
+    );
+  }, []);
+
   return {
     rows: state.result?.data ?? [],
     total: state.result?.total ?? 0,
@@ -50,5 +69,6 @@ export function useList<T>(endpoint: string, params: Record<string, string | num
     loading: state.key !== key,
     error: state.error,
     refresh,
+    removeRow,
   };
 }

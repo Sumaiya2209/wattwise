@@ -12,6 +12,8 @@ import RemoteSelect from "@/components/RemoteSelect";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useList } from "@/hooks/useList";
 import { sendJson } from "@/lib/client-api";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { useConfirmDelete } from "@/hooks/useConfirmDelete";
 
 type FloorRow = {
   _id: string;
@@ -28,7 +30,7 @@ export default function FloorsClient() {
   const [page, setPage] = useState(1);
   const debounced = useDebounce(search);
 
-  const { rows, total, totalPages, loading, error, refresh } = useList<FloorRow>("/api/floors", {
+  const { rows, total, totalPages, loading, error, refresh, removeRow } = useList<FloorRow>("/api/floors", {
     page,
     limit: 10,
     search: debounced,
@@ -42,7 +44,6 @@ export default function FloorsClient() {
   const [level, setLevel] = useState("");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
-  const [actionError, setActionError] = useState("");
 
   function openForm(f: FloorRow | null) {
     setEditing(f);
@@ -70,20 +71,21 @@ export default function FloorsClient() {
     refresh();
   }
 
-  async function remove(f: FloorRow) {
-    if (!confirm(`Delete "${f.name}" of ${f.buildingName}?`)) return;
-    setActionError("");
-    const r = await sendJson(`/api/floors/${f._id}`, "DELETE");
-    if (!r.ok) return setActionError(r.error);
-    refresh();
-  }
-
   const columns: Column<FloorRow>[] = [
     { key: "name", header: "Floor" },
     { key: "buildingName", header: "Building" },
     { key: "level", header: "Level" },
     { key: "departmentsCount", header: "Departments" },
   ];
+
+  const del = useConfirmDelete<FloorRow>(async (f) => {
+    const r = await sendJson(`/api/floors/${f._id}`, "DELETE");
+    if (!r.ok) return r.error;
+    removeRow(f._id);
+    if (rows.length === 1 && page > 1) setPage(page - 1);
+    else refresh();
+    return null;
+  });
 
   return (
     <div>
@@ -113,7 +115,6 @@ export default function FloorsClient() {
           className={`${inputCls} sm:w-56`}
         />
       </div>
-      {actionError && <div className="mb-4"><InlineError message={actionError} /></div>}
 
       <DataTable
         columns={columns}
@@ -125,7 +126,7 @@ export default function FloorsClient() {
         total={total}
         onPageChange={setPage}
         emptyText="No floors found"
-        actions={(f) => <RowActions onEdit={() => openForm(f)} onDelete={() => remove(f)} />}
+        actions={(f) => <RowActions onEdit={() => openForm(f)} onDelete={() => del.ask(f)} />}
       />
 
       <Modal open={open} title={editing ? "Edit Floor" : "Add Floor"} onClose={() => setOpen(false)}>
@@ -145,6 +146,15 @@ export default function FloorsClient() {
           <FormButtons saving={saving} submitLabel={editing ? "Save changes" : "Create"} onCancel={() => setOpen(false)} />
         </form>
       </Modal>
+      <ConfirmDialog
+        open={!!del.target}
+        title="Delete floor?"
+        message={`"${del.target?.name}" of ${del.target?.buildingName} will be permanently deleted.`}
+        busy={del.busy}
+        error={del.error}
+        onConfirm={del.confirm}
+        onCancel={del.cancel}
+      />
     </div>
   );
 }

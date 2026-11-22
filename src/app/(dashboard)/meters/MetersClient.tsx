@@ -14,6 +14,8 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useList } from "@/hooks/useList";
 import { sendJson } from "@/lib/client-api";
 import { fmtDateTime } from "@/lib/format";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { useConfirmDelete } from "@/hooks/useConfirmDelete";
 
 type MeterRow = {
   _id: string;
@@ -35,7 +37,7 @@ export default function MetersClient() {
   const [page, setPage] = useState(1);
   const debounced = useDebounce(search);
 
-  const { rows, total, totalPages, loading, error, refresh } = useList<MeterRow>("/api/meters", {
+  const { rows, total, totalPages, loading, error, refresh, removeRow } = useList<MeterRow>("/api/meters", {
     page,
     limit: 10,
     search: debounced,
@@ -53,7 +55,6 @@ export default function MetersClient() {
   const [status, setStatus] = useState<"active" | "inactive" | "faulty">("active");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
-  const [actionError, setActionError] = useState("");
 
   function openForm(m: MeterRow | null) {
     setEditing(m);
@@ -81,13 +82,14 @@ export default function MetersClient() {
     refresh();
   }
 
-  async function remove(m: MeterRow) {
-    if (!confirm(`Delete meter "${m.meterNumber}"?`)) return;
-    setActionError("");
+  const del = useConfirmDelete<MeterRow>(async (m) => {
     const r = await sendJson(`/api/meters/${m._id}`, "DELETE");
-    if (!r.ok) return setActionError(r.error);
-    refresh();
-  }
+    if (!r.ok) return r.error;
+    removeRow(m._id);
+    if (rows.length === 1 && page > 1) setPage(page - 1);
+    else refresh();
+    return null;
+  });
 
   const columns: Column<MeterRow>[] = [
     { key: "meterNumber", header: "Meter ID", render: (m) => <span className="ww-mono font-bold">{m.meterNumber}</span> },
@@ -152,7 +154,6 @@ export default function MetersClient() {
           <option value="faulty">Faulty</option>
         </select>
       </div>
-      {actionError && <div className="mb-4"><InlineError message={actionError} /></div>}
 
       <DataTable
         columns={columns}
@@ -164,7 +165,7 @@ export default function MetersClient() {
         total={total}
         onPageChange={setPage}
         emptyText="No meters found"
-        actions={(m) => <RowActions onEdit={() => openForm(m)} onDelete={() => remove(m)} />}
+        actions={(m) => <RowActions onEdit={() => openForm(m)} onDelete={() => del.ask(m)} />}
       />
 
       <Modal open={open} title={editing ? "Edit Meter" : "Add Meter"} onClose={() => setOpen(false)}>
@@ -251,6 +252,15 @@ export default function MetersClient() {
           <FormButtons saving={saving} submitLabel={editing ? "Save changes" : "Register meter"} onCancel={() => setOpen(false)} />
         </form>
       </Modal>
+      <ConfirmDialog
+        open={!!del.target}
+        title="Delete meter?"
+        message={`Meter "${del.target?.meterNumber}" will be permanently deleted. This can't be undone.`}
+        busy={del.busy}
+        error={del.error}
+        onConfirm={del.confirm}
+        onCancel={del.cancel}
+      />
     </div>
   );
 }
