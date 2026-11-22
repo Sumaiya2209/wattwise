@@ -1,5 +1,5 @@
 export const inputCls =
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-white/10 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500";
+  "w-full rounded-xl border border-[var(--ww-border)] bg-[var(--ww-panel2)] px-3 py-2.5 text-sm text-[var(--ww-text)] outline-none transition placeholder:text-[var(--ww-muted)] focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-60";
 
 export default function FormField({
   label,
@@ -10,9 +10,7 @@ export default function FormField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-600 dark:text-gray-400">
-        {label}
-      </span>
+      <span className="ww-eyebrow mb-1.5 block">{label}</span>
       {children}
     </label>
   );

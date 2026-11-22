@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import DataTable, { type Column } from "@/components/DataTable";
 import Modal from "@/components/Modal";
 import FormField, { inputCls } from "@/components/FormField";
+import FormButtons, { InlineError } from "@/components/FormButtons";
+import PageHeader, { AddButton } from "@/components/PageHeader";
+import SearchInput from "@/components/SearchInput";
+import RowActions from "@/components/RowActions";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useList } from "@/hooks/useList";
+import { sendJson } from "@/lib/client-api";
 
 type Building = {
   _id: string;
@@ -19,14 +23,14 @@ type Building = {
 export default function BuildingsClient() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const debouncedSearch = useDebounce(search);
+  const debounced = useDebounce(search);
+  const { rows, total, totalPages, loading, error, refresh } = useList<Building>("/api/buildings", {
+    page,
+    limit: 10,
+    search: debounced,
+  });
 
-  const { rows, total, totalPages, loading, error, refresh } = useList<Building>(
-    "/api/buildings",
-    { page, limit: 10, search: debouncedSearch }
-  );
-
-  const [modalOpen, setModalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Building | null>(null);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -34,50 +38,33 @@ export default function BuildingsClient() {
   const [formError, setFormError] = useState("");
   const [actionError, setActionError] = useState("");
 
-  function openCreate() {
-    setEditing(null);
-    setName("");
-    setAddress("");
-    setFormError("");
-    setModalOpen(true);
-  }
-
-  function openEdit(b: Building) {
+  function openForm(b: Building | null) {
     setEditing(b);
-    setName(b.name);
-    setAddress(b.address ?? "");
+    setName(b?.name ?? "");
+    setAddress(b?.address ?? "");
     setFormError("");
-    setModalOpen(true);
+    setOpen(true);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setFormError("");
-    const res = await fetch(editing ? `/api/buildings/${editing._id}` : "/api/buildings", {
-      method: editing ? "PATCH" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, address }),
+    const r = await sendJson(editing ? `/api/buildings/${editing._id}` : "/api/buildings", editing ? "PATCH" : "POST", {
+      name,
+      address,
     });
     setSaving(false);
-    if (!res.ok) {
-      const json = await res.json().catch(() => ({}));
-      setFormError(json.error ?? "Something went wrong");
-      return;
-    }
-    setModalOpen(false);
+    if (!r.ok) return setFormError(r.error);
+    setOpen(false);
     refresh();
   }
 
-  async function handleDelete(b: Building) {
+  async function remove(b: Building) {
     if (!confirm(`Delete "${b.name}"?`)) return;
     setActionError("");
-    const res = await fetch(`/api/buildings/${b._id}`, { method: "DELETE" });
-    if (!res.ok) {
-      const json = await res.json().catch(() => ({}));
-      setActionError(json.error ?? "Delete failed");
-      return;
-    }
+    const r = await sendJson(`/api/buildings/${b._id}`, "DELETE");
+    if (!r.ok) return setActionError(r.error);
     refresh();
   }
 
@@ -85,48 +72,28 @@ export default function BuildingsClient() {
     { key: "name", header: "Building" },
     { key: "address", header: "Address" },
     { key: "floorsCount", header: "Floors" },
-    {
-      key: "createdAt",
-      header: "Created",
-      render: (b) => new Date(b.createdAt).toLocaleDateString(),
-    },
+    { key: "createdAt", header: "Created", render: (b) => new Date(b.createdAt).toLocaleDateString("en-GB") },
   ];
 
   return (
     <div>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Buildings</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Manage your organization&apos;s buildings
-          </p>
-        </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
-        >
-          <Plus size={18} /> Add Building
-        </button>
-      </div>
+      <PageHeader
+        title="Buildings"
+        subtitle="Manage your organization's buildings"
+        action={<AddButton label="Add Building" onClick={() => openForm(null)} />}
+      />
 
-      <div className="mb-4 flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2.5 focus-within:border-emerald-500 dark:border-gray-700 dark:bg-gray-900 sm:max-w-sm">
-        <Search size={16} className="text-gray-400" />
-        <input
+      <div className="mb-4">
+        <SearchInput
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
+          onChange={(v) => {
+            setSearch(v);
             setPage(1);
           }}
           placeholder="Search buildings..."
-          className="w-full bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
         />
       </div>
-
-      {actionError && (
-        <p className="mb-4 rounded-lg border border-red-500/30 bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
-          {actionError}
-        </p>
-      )}
+      {actionError && <div className="mb-4"><InlineError message={actionError} /></div>}
 
       <DataTable
         columns={columns}
@@ -138,66 +105,19 @@ export default function BuildingsClient() {
         total={total}
         onPageChange={setPage}
         emptyText="No buildings found"
-        actions={(b) => (
-          <div className="flex justify-end gap-1">
-            <button
-              onClick={() => openEdit(b)}
-              aria-label="Edit"
-              className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-emerald-600 dark:hover:bg-gray-800"
-            >
-              <Pencil size={16} />
-            </button>
-            <button
-              onClick={() => handleDelete(b)}
-              aria-label="Delete"
-              className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10"
-            >
-              <Trash2 size={16} />
-            </button>
-          </div>
-        )}
+        actions={(b) => <RowActions onEdit={() => openForm(b)} onDelete={() => remove(b)} />}
       />
 
-      <Modal
-        open={modalOpen}
-        title={editing ? "Edit Building" : "Add Building"}
-        onClose={() => setModalOpen(false)}
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <Modal open={open} title={editing ? "Edit Building" : "Add Building"} onClose={() => setOpen(false)}>
+        <form onSubmit={submit} className="space-y-4">
           <FormField label="Building name">
-            <input
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={inputCls}
-              placeholder="e.g. North Tower"
-            />
+            <input required value={name} onChange={(e) => setName(e.target.value)} className={inputCls} placeholder="e.g. North Tower" />
           </FormField>
           <FormField label="Address (optional)">
-            <input
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className={inputCls}
-              placeholder="e.g. Zindabazar, Sylhet"
-            />
+            <input value={address} onChange={(e) => setAddress(e.target.value)} className={inputCls} placeholder="e.g. Zindabazar, Sylhet" />
           </FormField>
-          {formError && <p className="text-sm text-red-600 dark:text-red-400">{formError}</p>}
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={() => setModalOpen(false)}
-              className="rounded-xl border border-gray-300 px-4 py-2.5 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300"
-            >
-              Cancel
-            </button>
-            <button
-              disabled={saving}
-              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
-            >
-              {saving && <Loader2 size={16} className="animate-spin" />}
-              {editing ? "Save changes" : "Create"}
-            </button>
-          </div>
+          <InlineError message={formError} />
+          <FormButtons saving={saving} submitLabel={editing ? "Save changes" : "Create"} onCancel={() => setOpen(false)} />
         </form>
       </Modal>
     </div>
