@@ -1,7 +1,7 @@
 import { requireRole } from "@/lib/session";
-import InviteCodeCard from "./InviteCodeCard";
+import UsersClient from "./UsersClient";
 
 export default async function UsersPage() {
-  await requireRole(["org_admin"]);
-  return <InviteCodeCard />;
+  const user = await requireRole(["org_admin"]);
+  return <UsersClient currentUserId={user.id} />;
 }

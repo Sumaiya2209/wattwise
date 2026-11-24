@@ -70,9 +70,9 @@ const inputIcon =
 
 export default function LoginPage() {
   const router = useRouter();
-  const [selected, setSelected] = useState<(typeof ROLES)[number]>(ROLES[0]);
-  const [email, setEmail] = useState<string>(ROLES[0].email);
-  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [selected, setSelected] = useState<(typeof ROLES)[number] | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
@@ -132,7 +132,7 @@ export default function LoginPage() {
               Welcome back
             </h1>
             <span className="rounded-full border border-emerald-600/30 bg-emerald-600/10 px-3 py-1 font-mono text-[10px] font-semibold tracking-wider text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-400">
-              {selected.badge}
+              {selected?.badge ?? "SELECT ROLE"}
             </span>
           </div>
           <p
@@ -149,13 +149,15 @@ export default function LoginPage() {
               <span className="flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                 <Sparkles size={13} /> Quick demo access (1-click fill)
               </span>
-              <span className="text-[11px] text-gray-500">{selected.hint}</span>
+              <span className="text-[11px] text-gray-500">
+                {selected?.hint ?? "Choose a role to fill demo credentials"}
+              </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
               {ROLES.map((r) => {
                 const Icon = r.icon;
-                const active = selected.key === r.key;
+                const active = selected?.key === r.key;
                 return (
                   <button
                     key={r.key}

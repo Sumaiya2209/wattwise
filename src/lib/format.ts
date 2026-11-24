@@ -27,3 +27,9 @@ export const fmtDateTime = (iso: string) =>
   const d = Math.floor(h / 24);
   return `${d} day${d > 1 ? "s" : ""} ago`;
 }
+
+export const fmtDay = (iso: string) =>
+  new Intl.DateTimeFormat("en-GB", { timeZone: TZ, day: "2-digit", month: "short" }).format(new Date(iso));
+
+export const fmtMonth = (iso: string) =>
+  new Intl.DateTimeFormat("en-GB", { timeZone: TZ, month: "short", year: "2-digit" }).format(new Date(iso));

@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚡ WattWise: Smart Energy Consumption Intelligence Platform
 
-## Getting Started
+Multi-organization energy monitoring platform for offices, factories, universities and commercial buildings. Tracks hourly electricity consumption, cost, unusual usage, and energy-saving opportunities.
 
-First, run the development server:
+- **Live demo:** https://YOUR-APP.vercel.app
+- **GitHub:** https://github.com/Sumaiya2209/YOUR-REPO
 
+## Tech Stack
+Next.js (App Router) · React · TypeScript · Tailwind CSS · MongoDB (Mongoose) · Better Auth · Recharts · Zod · next-themes
+
+## Demo Credentials
+Password for every account: `Demo@1234`
+
+| Role | Email |
+|---|---|
+| Organization Admin | admin@brightedge.com |
+| Facility Manager | facility@brightedge.com |
+| Department Manager | dept@brightedge.com |
+| Viewer | viewer@brightedge.com |
+
+Other organizations use the same pattern with `@smu.com` and `@zenith.com`.
+
+## Features
+- Multi-organization: org → buildings → floors → departments → meters
+- Energy records with hourly consumption + estimated cost (org tariff)
+- Dashboard: total consumption, cost, avg daily, peak, lowest, previous-period comparison, building/department/meter breakdown, date range and building filters
+- Analytics: hourly pattern, daily, monthly, building and department comparison, cost analysis, trend analysis, custom date range
+- Alerts: threshold limits (building or meter, hourly or daily), High Usage + Unusual Consumption alerts, statuses New → Acknowledged → Resolved
+- Insights: anomaly detection, peak-load driver, off-hours idle load, saving suggestions
+- Reports by building, department, meter or day with CSV export; Energy Records CSV export (streamed)
+- Light/dark mode, fully responsive, loading and error states
+- Bonus: carbon emission estimate, dark mode, automated anomaly detection
+
+## Roles
+| Capability | Org Admin | Facility Manager | Dept Manager | Viewer |
+|---|---|---|---|---|
+| Buildings / floors / departments / users | ✅ | – | – | – |
+| Meters, thresholds, alerts, add records | ✅ | ✅ | – | – |
+| Dashboard, analytics, reports, records (read) | ✅ | ✅ | own department | ✅ (read-only) |
+
+Every query is scoped by `organizationId`. Department managers are additionally scoped by `departmentId` on the server.
+
+## Setup
 ```bash
+npm install
+cp .env.example .env     # fill values
+npm run seed             # 3 orgs, 12 buildings, 36 floors, 72 departments, 72 meters, ~103k records, 12 demo users
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env`
+```
+MONGODB_URI=mongodb+srv://...
+BETTER_AUTH_SECRET=<openssl rand -base64 32>
+BETTER_AUTH_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Design (MongoDB)
+| Collection | Key fields | Indexes |
+|---|---|---|
+| organizations | name, type, tariffPerKwh | – |
+| buildings | organizationId, name | (organizationId, name) unique |
+| floors | organizationId, buildingId, name, level | (buildingId, level) unique |
+| departments | organizationId, buildingId, floorId, name | (organizationId, buildingId) |
+| meters | organizationId, buildingId, floorId, departmentId, meterNumber, status | meterNumber unique |
+| energyrecords | organizationId, meterId, buildingId, floorId, departmentId, consumption, timestamp, estimatedCost | **(meterId, timestamp) unique**, (organizationId, timestamp), (organizationId, buildingId, timestamp), (organizationId, departmentId, timestamp) |
+| thresholds | organizationId, scope, buildingId/meterId, period, limitKwh, isActive | – |
+| alerts | organizationId, type, status, message, value, limit, triggeredAt, dedupKey | dedupKey unique sparse, (organizationId, status, triggeredAt) |
+| user / account / session | Better Auth, user has role, organizationId, departmentId | – |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture Notes
+- **Server-side aggregation:** all totals, series and comparisons use MongoDB aggregation (`$group`, `$dateTrunc`, `$facet`) in Asia/Dhaka timezone. The browser never receives raw records.
+- **Large data:** 100k+ records, compound indexes, server-side pagination, debounced search, streamed CSV export (up to 200k rows).
+- **Caching:** dashboard and analytics responses are cached per org/role/query for 60s and invalidated when a record is added.
+- **Data integrity:** a record's building/floor/department are derived from the meter on the server; duplicate (meter, hour) readings are rejected; records cannot be edited or deleted (history preserved); meters with history cannot be deleted (set Inactive); parents with children cannot be deleted; costs are always computed by `calculateCost()` using the organization tariff.
+- **Security:** role checks on every API route, org isolation, input validation with Zod, CSV formula-injection protection, users cannot pick their own role at registration.
+- **Alerts:** generated by scanning stored readings (on demand via "Scan now" and when a limit is saved). High Usage = bucket total above limit; Unusual = reading with z-score ≥ 3 and ≥ 1.8× the meter's hourly baseline over 30 days. Duplicates are prevented with `dedupKey`.
 
-## Learn More
+## API Documentation
+All endpoints require a session cookie (Better Auth). List endpoints support `page` and `limit`.
 
-To learn more about Next.js, take a look at the following resources:
+| Method | Endpoint | Roles | Description |
+|---|---|---|---|
+| POST | /api/auth/* | public | Better Auth (sign-in, sign-out, session) |
+| POST | /api/register | public | Create organization + admin |
+| GET/POST | /api/buildings | read: all, write: admin | List (search) / create |
+| PATCH/DELETE | /api/buildings/:id | admin | Update / delete (blocked if floors exist) |
+| GET/POST | /api/floors | admin+facility read, admin write | Filter `buildingId` |
+| PATCH/DELETE | /api/floors/:id | admin | |
+| GET/POST | /api/departments | admin+facility read, admin write | Filter `buildingId`, `floorId` |
+| PATCH/DELETE | /api/departments/:id | admin | |
+| GET/POST | /api/meters | admin, facility | Filter `buildingId`, `status`, `search` |
+| PATCH/DELETE | /api/meters/:id | admin, facility | Delete blocked if records exist |
+| GET | /api/records | all (dept manager scoped) | Filters: `search`, `building`, `department`, `from`, `to` |
+| POST | /api/records | admin, facility | Body: `meterId`, `timestamp`, `consumption` |
+| GET | /api/records/export | all | CSV stream with the same filters |
+| GET | /api/dashboard | all | Params: `range` (today, 7d, 30d, custom), `from`, `to`, `building`, `granularity`, `by` |
+| GET | /api/analytics | all | Same range params |
+| GET | /api/insights | all | Same range params |
+| GET | /api/reports | all | `type` = building, department, meter, daily; `format=csv` downloads |
+| GET | /api/alerts | admin, facility | Filters: `status`, `type`, `building` |
+| PATCH | /api/alerts/:id | admin, facility | Body: `status` = acknowledged or resolved |
+| POST | /api/alerts/scan | admin, facility | Run alert engine |
+| GET/POST | /api/thresholds | admin, facility | Limits (duplicate per target+period rejected) |
+| PATCH/DELETE | /api/thresholds/:id | admin, facility | Update limit / toggle / delete |
+| GET/POST | /api/users | admin | Organization users |
+| PATCH/DELETE | /api/users/:id | admin | Cannot modify or delete yourself |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Assumptions
+- Readings are hourly and generated (`npm run seed`); no real IoT devices.
+- Carbon factor 0.6 kg CO₂e/kWh and saving percentages in Insights are estimates.
+- Facility Managers can manage all meters and thresholds in their organization.
+- A sample of the dataset is in `sample-data/energy-records-sample.csv` (`npm run export-sample`).

@@ -10,6 +10,7 @@ import { Floor } from "@/models/Floor";
 import { Department } from "@/models/Department";
 import { Meter } from "@/models/Meter";
 import { EnergyRecord } from "@/models/EnergyRecord";
+import { withCache } from "@/lib/cache";
 
 const TZ = "Asia/Dhaka";
 const UNITS = { hourly: "hour", daily: "day", monthly: "month" } as const;
@@ -27,7 +28,7 @@ type MeterDoc = {
 
 const pct = (cur: number, prev: number) => (prev > 0 ? ((cur - prev) / prev) * 100 : null);
 
-export async function GET(req: Request) {
+async function handler(req: Request) {
   const { user, error } = await getApiUser();
   if (error) return error;
 
@@ -202,3 +203,5 @@ export async function GET(req: Request) {
     return handleServerError(e);
   }
 }
+
+export const GET = withCache("dashboard", handler);

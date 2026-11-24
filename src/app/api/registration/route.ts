@@ -1,120 +1,47 @@
-import { createHash } from "node:crypto";
-import mongoose from "mongoose";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
+import { auth } from "@/lib/auth";
+import { usersCol } from "@/lib/users-db";
 import { apiError, handleServerError } from "@/lib/api";
 import { Organization } from "@/models/Organization";
 
-const commonFields = {
-  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
-  email: z.string().trim().email("Enter a valid email address").transform((email) => email.toLowerCase()),
-  password: z.string().min(8, "Password must be at least 8 characters").max(128),
-};
+const schema = z.object({
+  orgName: z.string().trim().min(2, "Organization name is too short").max(100),
+  orgType: z.enum(["office", "factory", "university", "commercial"]),
+  tariff: z.number().min(0.1, "Tariff must be positive").max(1000),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
+  email: z.string().trim().toLowerCase().email("Enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(100),
+});
 
-const schema = z.discriminatedUnion("role", [
-  z.object({
-    ...commonFields,
-    role: z.literal("org_admin"),
-    organizationName: z.string().trim().min(2, "Organization name must be at least 2 characters").max(100),
-    organizationType: z.enum(["office", "factory", "university", "commercial"]),
-    address: z.string().trim().max(200).optional(),
-  }).strict(),
-  z.object({
-    ...commonFields,
-    role: z.enum(["manager", "employee"]),
-    inviteCode: z.string().trim().min(1, "An organization invitation code is required").max(100),
-  }).strict(),
-]);
-
-const RBAC_ROLE = {
-  org_admin: "org_admin",
-  manager: "facility_manager",
-  employee: "viewer",
-} as const;
-
-function hashInviteCode(code: string) {
-  return createHash("sha256").update(code).digest("hex");
-}
-
-export async function POST(request: Request) {
-  const parsed = schema.safeParse(await request.json().catch(() => null));
+// Public endpoint: role shobshomoy org_admin, user role choose korte parbe na
+export async function POST(req: Request) {
+  const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return apiError(parsed.error.issues[0].message);
+  const { orgName, orgType, tariff, name, email, password } = parsed.data;
 
   try {
     await connectDB();
-    const db = mongoose.connection.db;
-    if (!db) throw new Error("Database connection is unavailable");
+    const col = usersCol();
+    if (await col.findOne({ email })) return apiError("An account with this email already exists", 409);
 
-    const users = db.collection("user");
-    const existingUser = await users.findOne({ email: parsed.data.email });
-    if (existingUser) return apiError("An account already uses this email", 409);
+    const org = await Organization.create({
+      name: orgName,
+      type: orgType,
+      tariffPerKwh: tariff,
+      contactEmail: email,
+    });
 
-    let organizationId: string;
-    let createdOrganizationId: mongoose.Types.ObjectId | null = null;
-
-    if (parsed.data.role === "org_admin") {
-      const existingOrganization = await Organization.findOne({
-        contactEmail: parsed.data.email,
-      }).lean();
-      if (existingOrganization) {
-        return apiError("An organization already uses this email", 409);
-      }
-
-      const organization = await Organization.create({
-        name: parsed.data.organizationName,
-        type: parsed.data.organizationType,
-        address: parsed.data.address || undefined,
-        contactEmail: parsed.data.email,
-      });
-      organizationId = organization._id.toString();
-      createdOrganizationId = organization._id;
-    } else {
-      const organization = await Organization.findOne({
-        [`${parsed.data.role}InviteCodeHash`]: hashInviteCode(parsed.data.inviteCode),
-      }).select("_id").lean();
-      if (!organization) return apiError("Invalid organization invitation code", 403);
-      organizationId = organization._id.toString();
-    }
-
-    let createdUserId: string | null = null;
     try {
-      const result = await auth.api.signUpEmail({
-        body: {
-          name: parsed.data.name,
-          email: parsed.data.email,
-          password: parsed.data.password,
-        },
-      });
-      createdUserId = result.user.id;
-
-      const update = await users.updateOne(
-        { email: parsed.data.email },
-        {
-          $set: {
-            role: RBAC_ROLE[parsed.data.role],
-            organizationId,
-          },
-        },
-      );
-      if (update.matchedCount !== 1) {
-        throw new Error("The new account could not be linked to its organization");
-      }
-    } catch (error) {
-      if (createdUserId) {
-        await Promise.all([
-          db.collection("account").deleteMany({ userId: createdUserId }),
-          users.deleteOne({ email: parsed.data.email }),
-        ]);
-      }
-      if (createdOrganizationId) {
-        await Organization.deleteOne({ _id: createdOrganizationId });
-      }
-      throw error;
+      await auth.api.signUpEmail({ body: { email, password, name } });
+      await col.updateOne({ email }, { $set: { role: "org_admin", organizationId: String(org._id) } });
+    } catch (e) {
+      await Organization.deleteOne({ _id: org._id }); // adha-adhi toiri hobe na
+      return apiError(e instanceof Error ? e.message : "Could not create account", 400);
     }
 
-    return Response.json({ organizationId }, { status: 201 });
-  } catch (error) {
-    return handleServerError(error);
+    return Response.json({ success: true }, { status: 201 });
+  } catch (e) {
+    return handleServerError(e);
   }
 }

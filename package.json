@@ -32,5 +32,6 @@
     "tailwindcss": "4.3.3",
     "tsx": "^4.23.15",
     "typescript": "^5"
-  }
+  },
+  "export-sample": "tsx --env-file=.env src/scripts/export-sample.ts"
 }

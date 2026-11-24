@@ -11,6 +11,7 @@ import { Floor } from "@/models/Floor";
 import { Department } from "@/models/Department";
 import { Meter } from "@/models/Meter";
 import { EnergyRecord } from "@/models/EnergyRecord";
+import { invalidateOrg } from "@/lib/cache";
 
 type RecDoc = {
   _id: Types.ObjectId;
@@ -133,6 +134,7 @@ export async function POST(req: Request) {
       { lastReadingAt: ts }
     );
 
+    invalidateOrg(orgId);
     return Response.json(doc, { status: 201 });
   } catch (e) {
     return handleServerError(e);
