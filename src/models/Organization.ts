@@ -10,6 +10,8 @@ const OrganizationSchema = new Schema(
     },
     address: String,
     contactEmail: String,
+    managerInviteCodeHash: { type: String, select: false },
+    employeeInviteCodeHash: { type: String, select: false },
     tariffPerKwh: { type: Number, default: 8 }, // BDT per kWh
   },
   { timestamps: true }
