@@ -107,6 +107,10 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 p-4 transition-colors dark:bg-[#070b14]">
+
+      <Link href="/" className="absolute left-4 top-4 z-10 flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white/80 px-3 py-2 text-sm font-medium text-gray-700 backdrop-blur hover:text-emerald-600 dark:border-white/15 dark:bg-white/5 dark:text-gray-300">
+        ← Home
+      </Link>
       {/* theme toggle */}
       <ThemeToggle className="absolute right-4 top-4 z-10 border-gray-300 bg-white/80 text-gray-700 shadow-sm backdrop-blur hover:border-emerald-500 hover:text-emerald-600 dark:border-white/15 dark:bg-white/5 dark:text-gray-300 dark:hover:border-emerald-500/60 dark:hover:text-emerald-400" />
 
@@ -163,18 +167,16 @@ export default function LoginPage() {
                     key={r.key}
                     type="button"
                     onClick={() => pickRole(r)}
-                    className={`flex items-center gap-2.5 rounded-xl border p-2.5 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                      active
+                    className={`flex items-center gap-2.5 rounded-xl border p-2.5 text-left transition-all duration-300 hover:-translate-y-0.5 ${active
                         ? "border-emerald-500/70 bg-emerald-50 shadow-[0_0_20px_-4px_rgba(16,185,129,0.5)] dark:bg-emerald-500/10"
                         : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25"
-                    }`}
+                      }`}
                   >
                     <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                        active
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${active
                           ? "bg-emerald-500 text-white dark:text-[#04120c]"
                           : "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300"
-                      }`}
+                        }`}
                     >
                       <Icon size={17} />
                     </span>

@@ -1,44 +1,64 @@
 @import "tailwindcss";
+
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-:root { --ww-grid-line: rgba(15, 23, 42, 0.07); }
-.dark { --ww-grid-line: rgba(255, 255, 255, 0.04); }
-
-.ww-grid {
-  background-image:
-    linear-gradient(var(--ww-grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--ww-grid-line) 1px, transparent 1px);
-  background-size: 48px 48px;
-  animation: ww-grid-move 6s linear infinite;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 3-color palette */
+@theme {
+  --color-midnight: #0b1120;
+  --color-volt: #10b981;
+  --color-alabaster: #f8fafc;
 }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ww-bg);
+  color: var(--ww-text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-/* ===== WattWise login animations ===== */
+/* ===== App design tokens ===== */
+:root {
+  --ww-bg: #f3f6f5;
+  --ww-panel: #ffffff;
+  --ww-panel2: #eef3f1;
+  --ww-border: #d9e3df;
+  --ww-text: #0e1d18;
+  --ww-muted: #60746d;
+  --ww-accent: #059669;
+  --ww-grid-line: rgba(15, 23, 42, 0.07);
+}
+.dark {
+  --ww-bg: #0b1120;
+  --ww-panel: #0f1729;
+  --ww-panel2: #141e33;
+  --ww-border: rgba(248, 250, 252, 0.1);
+  --ww-text: #f8fafc;
+  --ww-muted: #8e99ab;
+  --ww-accent: #10b981;
+  --ww-grid-line: rgba(248, 250, 252, 0.04);
+}
+
+.ww-shell { background: var(--ww-bg); color: var(--ww-text); }
+.ww-panel { background: var(--ww-panel); border: 1px solid var(--ww-border); border-radius: 1.25rem; }
+.ww-panel-2 { background: var(--ww-panel2); border: 1px solid var(--ww-border); }
+.ww-muted { color: var(--ww-muted); }
+.ww-mono { font-family: var(--font-geist-mono), ui-monospace, monospace; }
+.ww-eyebrow {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ww-muted);
+}
+.ww-skeleton { background: var(--ww-panel2); border-radius: 1rem; }
+
+/* ===== Login / shared animations ===== */
 @keyframes ww-fade-up {
   from { opacity: 0; transform: translateY(24px) scale(0.98); }
   to { opacity: 1; transform: none; }
@@ -61,11 +81,9 @@ body {
   from { transform: translateX(-120%) skewX(-20deg); }
   to { transform: translateX(220%) skewX(-20deg); }
 }
-
 .ww-fade-up { animation: ww-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .ww-shake { animation: ww-shake 0.5s ease-in-out; }
 .ww-glow { animation: ww-glow 6s ease-in-out infinite; }
-
 .ww-grid {
   background-image:
     linear-gradient(var(--ww-grid-line) 1px, transparent 1px),
@@ -74,7 +92,6 @@ body {
   animation: ww-grid-move 6s linear infinite;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
 }
-
 .ww-btn { position: relative; overflow: hidden; }
 .ww-btn::after {
   content: "";
@@ -86,35 +103,136 @@ body {
 }
 .ww-btn:hover::after { animation: ww-shine 0.9s ease; }
 
-/* ===== WattWise design tokens ===== */
-:root {
-  --ww-bg: #f3f6f5;
-  --ww-panel: #ffffff;
-  --ww-panel2: #eef3f1;
-  --ww-border: #d9e3df;
-  --ww-text: #0e1d18;
-  --ww-muted: #60746d;
-  --ww-accent: #059669;
+/* ===== Home page ===== */
+.hm-grid {
+  background-size: 48px 48px;
+  background-image:
+    linear-gradient(to right, rgba(248, 250, 252, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(248, 250, 252, 0.035) 1px, transparent 1px);
 }
-.dark {
-  --ww-bg: #070d17;
-  --ww-panel: #0c1523;
-  --ww-panel2: #111e30;
-  --ww-border: #1c2c3f;
-  --ww-text: #e8f1ee;
-  --ww-muted: #8497a3;
-  --ww-accent: #10b981;
+.hm-nav {
+  background: rgba(11, 17, 32, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(248, 250, 252, 0.08);
 }
-.ww-shell { background: var(--ww-bg); color: var(--ww-text); }
-.ww-panel { background: var(--ww-panel); border: 1px solid var(--ww-border); border-radius: 1.25rem; }
-.ww-panel-2 { background: var(--ww-panel2); border: 1px solid var(--ww-border); }
-.ww-muted { color: var(--ww-muted); }
-.ww-mono { font-family: var(--font-geist-mono), ui-monospace, monospace; }
-.ww-eyebrow {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ww-muted);
+.hm-card {
+  background: rgba(11, 17, 32, 0.68);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(248, 250, 252, 0.08);
+  box-shadow: 0 24px 48px -15px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(248, 250, 252, 0.06);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.35s ease;
 }
-.ww-skeleton { background: var(--ww-panel2); border-radius: 1rem; }
+.hm-card:hover {
+  border-color: rgba(16, 185, 129, 0.38);
+  box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.16), inset 0 1px 0 0 rgba(248, 250, 252, 0.12);
+}
+.hm-perspective { perspective: 1400px; }
+.hm-tilt {
+  transform: rotateY(-5deg) rotateX(3deg);
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+}
+.hm-tilt:hover {
+  transform: rotateY(0deg) rotateX(0deg) translateY(-4px);
+  box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.25), inset 0 1px 0 0 rgba(248, 250, 252, 0.14);
+}
+@media (max-width: 1024px) {
+  .hm-tilt { transform: none; }
+}
+
+.hm-shimmer { position: relative; overflow: hidden; }
+.hm-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(248, 250, 252, 0.45), transparent);
+  transform: skewX(-22deg);
+  animation: hm-shimmer 3.4s infinite;
+}
+@keyframes hm-shimmer {
+  0%, 55% { left: -120%; }
+  100% { left: 160%; }
+}
+
+/* Circuit current */
+.hm-packet { stroke-dasharray: 22 220; animation: hm-flow 3.6s linear infinite; }
+.hm-packet-alt { stroke-dasharray: 16 190; animation: hm-flow 4.4s linear infinite 1.1s; }
+.hm-packet-fast { stroke-dasharray: 10 130; animation: hm-flow-fast 2.4s linear infinite 0.6s; }
+@keyframes hm-flow {
+  0% { stroke-dashoffset: 242; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes hm-flow-fast {
+  0% { stroke-dashoffset: 140; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Live chart scan bar */
+@keyframes hm-scan {
+  from { transform: translateX(-70px); }
+  to { transform: translateX(372px); }
+}
+.hm-scan { animation: hm-scan 3.2s linear infinite; }
+
+@keyframes hm-orb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(24px, -18px) scale(1.06); }
+}
+.hm-orb { animation: hm-orb 9s ease-in-out infinite; }
+.hm-orb-slow { animation: hm-orb 13s ease-in-out infinite reverse; }
+
+.hm-marquee { display: flex; width: max-content; animation: hm-marquee 32s linear infinite; }
+.hm-marquee:hover { animation-play-state: paused; }
+@keyframes hm-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.hm-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hm-reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+input[type="range"].hm-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: rgba(248, 250, 252, 0.12);
+  border-radius: 9999px;
+  outline: none;
+}
+input[type="range"].hm-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 3px solid #0b1120;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.7);
+  cursor: pointer;
+}
+input[type="range"].hm-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 3px solid #0b1120;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.7);
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-packet, .hm-packet-alt, .hm-packet-fast, .hm-orb, .hm-orb-slow,
+  .hm-marquee, .hm-shimmer::after, .hm-scan, .ww-glow, .ww-grid {
+    animation: none !important;
+  }
+}
