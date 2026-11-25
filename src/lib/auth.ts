@@ -18,7 +18,7 @@ const db = client.db();
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
-trustedOrigins: [process.env.BETTER_AUTH_URL ?? "http://localhost:3000"],
+  trustedOrigins: [process.env.BETTER_AUTH_URL ?? "http://localhost:3000", "https://wattwise-blond.vercel.app"],
   database: mongodbAdapter(db),
   emailAndPassword: { enabled: true },
   user: {
