@@ -57,7 +57,7 @@ async function handler(req: Request) {
     await connectDB();
     const url = new URL(req.url);
     const s = buildScope(user, url);
-    if ("error" in s) return apiError(s.error, s.status);
+    if ("error" in s) return apiError(s.error ?? "Invalid dashboard scope", s.status);
     const { orgId, scope } = s;
 
     const latest = await EnergyRecord.findOne({ organizationId: orgId })
