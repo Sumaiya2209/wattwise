@@ -1,3 +1,4 @@
+
 const P1 = "M -40 160 H 320 L 410 250 H 780 L 860 330 H 1480";
 const P2 = "M -40 580 H 240 L 340 480 H 720 L 820 380 H 1480";
 const P3 = "M 680 -20 V 190 L 760 270 V 540 L 660 640 V 860";
@@ -11,7 +12,7 @@ const NODES: [number, number][] = [
 export default function HeroCircuit() {
   return (
     <svg
-      className="pointer-events-none absolute inset-0 h-full w-full"
+      className="pointer-events-none absolute inset-0 h-full w-full text-alabaster"
       viewBox="0 0 1440 820"
       fill="none"
       preserveAspectRatio="xMidYMid slice"
@@ -26,9 +27,9 @@ export default function HeroCircuit() {
           </feMerge>
         </filter>
         <linearGradient id="wh-trace" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#F8FAFC" stopOpacity="0.03" />
-          <stop offset="50%" stopColor="#10B981" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#F8FAFC" stopOpacity="0.03" />
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.05" />
+          <stop offset="50%" stopColor="#10B981" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0.05" />
         </linearGradient>
       </defs>
 
@@ -38,18 +39,20 @@ export default function HeroCircuit() {
       ))}
 
       {/* current packets */}
-      <path d={P1} stroke="#10B981" strokeWidth="2" strokeLinecap="round" className="hm-packet" filter="url(#wh-glow)" />
-      <path d={P2} stroke="#10B981" strokeWidth="2" strokeLinecap="round" className="hm-packet" filter="url(#wh-glow)" />
+      <path d={P1} stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" className="hm-packet" filter="url(#wh-glow)" />
+      <path d={P1} stroke="#10B981" strokeWidth="2" strokeLinecap="round" className="hm-packet-fast" filter="url(#wh-glow)" />
+      <path d={P2} stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" className="hm-packet-alt" filter="url(#wh-glow)" />
+      <path d={P2} stroke="#10B981" strokeWidth="2" strokeLinecap="round" className="hm-packet-fast" filter="url(#wh-glow)" />
       <path d={P3} stroke="#10B981" strokeWidth="2" strokeLinecap="round" className="hm-packet" filter="url(#wh-glow)" />
 
       {/* glowing electrons travelling along the wires */}
-      <circle r="4" fill="#F8FAFC" filter="url(#wh-glow)">
+      <circle r="4" fill="currentColor" filter="url(#wh-glow)">
         <animateMotion dur="6.5s" repeatCount="indefinite" path={P1} />
       </circle>
-      <circle r="4" fill="#F8FAFC" filter="url(#wh-glow)">
+      <circle r="4" fill="currentColor" filter="url(#wh-glow)">
         <animateMotion dur="8s" begin="1.5s" repeatCount="indefinite" path={P2} />
       </circle>
-      <circle r="3.5" fill="#F8FAFC" filter="url(#wh-glow)">
+      <circle r="3.5" fill="currentColor" filter="url(#wh-glow)">
         <animateMotion dur="7s" begin="0.8s" repeatCount="indefinite" path={P3} />
       </circle>
 
@@ -60,7 +63,7 @@ export default function HeroCircuit() {
             <animate attributeName="r" values="4;18" dur="2.8s" begin={`${(i * 0.37).toFixed(2)}s`} repeatCount="indefinite" />
             <animate attributeName="opacity" values="0.65;0" dur="2.8s" begin={`${(i * 0.37).toFixed(2)}s`} repeatCount="indefinite" />
           </circle>
-          <circle cx={x} cy={y} r="4" fill="#0B1120" stroke="#10B981" strokeWidth="2" />
+          <circle cx={x} cy={y} r="4" className="fill-midnight" stroke="#10B981" strokeWidth="2" />
         </g>
       ))}
     </svg>

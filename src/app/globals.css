@@ -7,14 +7,16 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* 3-color palette */
+/* 3-color palette (home page). Neeche :root / .dark e theme onujayi override kora hoy */
 @theme {
   --color-midnight: #0b1120;
   --color-volt: #10b981;
   --color-alabaster: #f8fafc;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   background: var(--ww-bg);
@@ -22,7 +24,7 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
-/* ===== App design tokens ===== */
+/* ===== LIGHT theme tokens ===== */
 :root {
   --ww-bg: #f3f6f5;
   --ww-panel: #ffffff;
@@ -32,23 +34,71 @@ body {
   --ww-muted: #60746d;
   --ww-accent: #059669;
   --ww-grid-line: rgba(15, 23, 42, 0.07);
-}
-.dark {
-  --ww-bg: #0b1120;
-  --ww-panel: #0f1729;
-  --ww-panel2: #141e33;
-  --ww-border: rgba(248, 250, 252, 0.1);
-  --ww-text: #f8fafc;
-  --ww-muted: #8e99ab;
-  --ww-accent: #10b981;
-  --ww-grid-line: rgba(248, 250, 252, 0.04);
+
+  /* home page palette (light) */
+  --color-midnight: #f3f6f5;
+  --color-volt: #059669;
+  --color-alabaster: #0e1d18;
+  --hm-nav-bg: rgba(243, 246, 245, 0.82);
+  --hm-nav-border: rgba(15, 23, 42, 0.1);
+  --hm-card-bg: rgba(255, 255, 255, 0.85);
+  --hm-card-border: rgba(15, 23, 42, 0.1);
+  --hm-card-shadow: 0 20px 40px -20px rgba(15, 23, 42, 0.18), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  --hm-card-shadow-hover: 0 25px 50px -12px rgba(5, 150, 105, 0.22), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  --hm-tilt-shadow: 0 30px 60px -15px rgba(5, 150, 105, 0.28), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  --hm-slider-track: rgba(14, 29, 24, 0.14);
+  --hm-shimmer: rgba(255, 255, 255, 0.55);
 }
 
-.ww-shell { background: var(--ww-bg); color: var(--ww-text); }
-.ww-panel { background: var(--ww-panel); border: 1px solid var(--ww-border); border-radius: 1.25rem; }
-.ww-panel-2 { background: var(--ww-panel2); border: 1px solid var(--ww-border); }
-.ww-muted { color: var(--ww-muted); }
-.ww-mono { font-family: var(--font-geist-mono), ui-monospace, monospace; }
+/* ===== DARK theme tokens ===== */
+.dark {
+  --ww-bg: #0b1120;
+  --ww-panel: #0e1526;
+  --ww-panel2: rgba(248, 250, 252, 0.04);
+  --ww-border: rgba(248, 250, 252, 0.08);
+  --ww-text: #f8fafc;
+  --ww-muted: rgba(248, 250, 252, 0.62);
+  --ww-accent: #10b981;
+  --ww-grid-line: rgba(248, 250, 252, 0.035);
+
+  /* home page palette (dark) */
+  --color-midnight: #0b1120;
+  --color-volt: #10b981;
+  --color-alabaster: #f8fafc;
+  --hm-nav-bg: rgba(11, 17, 32, 0.78);
+  --hm-nav-border: rgba(248, 250, 252, 0.08);
+  --hm-card-bg: rgba(11, 17, 32, 0.68);
+  --hm-card-border: rgba(248, 250, 252, 0.08);
+  --hm-card-shadow: 0 24px 48px -15px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(248, 250, 252, 0.06);
+  --hm-card-shadow-hover: 0 25px 50px -12px rgba(16, 185, 129, 0.16), inset 0 1px 0 0 rgba(248, 250, 252, 0.12);
+  --hm-tilt-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.25), inset 0 1px 0 0 rgba(248, 250, 252, 0.14);
+  --hm-slider-track: rgba(248, 250, 252, 0.12);
+  --hm-shimmer: rgba(248, 250, 252, 0.45);
+}
+
+/* ===== App surfaces ===== */
+.ww-shell {
+  background: var(--ww-bg);
+  color: var(--ww-text);
+}
+.ww-panel {
+  background: var(--ww-panel);
+  border: 1px solid var(--ww-border);
+  border-radius: 1.25rem;
+}
+.dark .ww-panel {
+  box-shadow: 0 24px 48px -15px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(248, 250, 252, 0.06);
+}
+.ww-panel-2 {
+  background: var(--ww-panel2);
+  border: 1px solid var(--ww-border);
+}
+.ww-muted {
+  color: var(--ww-muted);
+}
+.ww-mono {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
 .ww-eyebrow {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 11px;
@@ -56,7 +106,16 @@ body {
   text-transform: uppercase;
   color: var(--ww-muted);
 }
-.ww-skeleton { background: var(--ww-panel2); border-radius: 1rem; }
+.ww-skeleton {
+  background: var(--ww-panel2);
+  border-radius: 1rem;
+}
+.ww-bg-grid {
+  background-image:
+    linear-gradient(to right, var(--ww-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ww-grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
 
 /* ===== Login / shared animations ===== */
 @keyframes ww-fade-up {
@@ -81,9 +140,11 @@ body {
   from { transform: translateX(-120%) skewX(-20deg); }
   to { transform: translateX(220%) skewX(-20deg); }
 }
+
 .ww-fade-up { animation: ww-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
 .ww-shake { animation: ww-shake 0.5s ease-in-out; }
 .ww-glow { animation: ww-glow 6s ease-in-out infinite; }
+
 .ww-grid {
   background-image:
     linear-gradient(var(--ww-grid-line) 1px, transparent 1px),
@@ -92,6 +153,7 @@ body {
   animation: ww-grid-move 6s linear infinite;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
 }
+
 .ww-btn { position: relative; overflow: hidden; }
 .ww-btn::after {
   content: "";
@@ -103,30 +165,30 @@ body {
 }
 .ww-btn:hover::after { animation: ww-shine 0.9s ease; }
 
-/* ===== Home page ===== */
+/* ===== Home page (theme-aware) ===== */
 .hm-grid {
   background-size: 48px 48px;
   background-image:
-    linear-gradient(to right, rgba(248, 250, 252, 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(248, 250, 252, 0.035) 1px, transparent 1px);
+    linear-gradient(to right, var(--ww-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ww-grid-line) 1px, transparent 1px);
 }
 .hm-nav {
-  background: rgba(11, 17, 32, 0.78);
+  background: var(--hm-nav-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(248, 250, 252, 0.08);
+  border-bottom: 1px solid var(--hm-nav-border);
 }
 .hm-card {
-  background: rgba(11, 17, 32, 0.68);
+  background: var(--hm-card-bg);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(248, 250, 252, 0.08);
-  box-shadow: 0 24px 48px -15px rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(248, 250, 252, 0.06);
+  border: 1px solid var(--hm-card-border);
+  box-shadow: var(--hm-card-shadow);
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.35s ease;
 }
 .hm-card:hover {
-  border-color: rgba(16, 185, 129, 0.38);
-  box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.16), inset 0 1px 0 0 rgba(248, 250, 252, 0.12);
+  border-color: color-mix(in srgb, var(--color-volt) 40%, transparent);
+  box-shadow: var(--hm-card-shadow-hover);
 }
 .hm-perspective { perspective: 1400px; }
 .hm-tilt {
@@ -136,7 +198,7 @@ body {
 }
 .hm-tilt:hover {
   transform: rotateY(0deg) rotateX(0deg) translateY(-4px);
-  box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.25), inset 0 1px 0 0 rgba(248, 250, 252, 0.14);
+  box-shadow: var(--hm-tilt-shadow);
 }
 @media (max-width: 1024px) {
   .hm-tilt { transform: none; }
@@ -150,7 +212,7 @@ body {
   left: -120%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(248, 250, 252, 0.45), transparent);
+  background: linear-gradient(90deg, transparent, var(--hm-shimmer), transparent);
   transform: skewX(-22deg);
   animation: hm-shimmer 3.4s infinite;
 }
@@ -205,7 +267,7 @@ input[type="range"].hm-slider {
   appearance: none;
   width: 100%;
   height: 6px;
-  background: rgba(248, 250, 252, 0.12);
+  background: var(--hm-slider-track);
   border-radius: 9999px;
   outline: none;
 }
@@ -215,18 +277,18 @@ input[type="range"].hm-slider::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #10b981;
-  border: 3px solid #0b1120;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.7);
+  background: var(--color-volt);
+  border: 3px solid var(--color-midnight);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-volt) 70%, transparent);
   cursor: pointer;
 }
 input[type="range"].hm-slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #10b981;
-  border: 3px solid #0b1120;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.7);
+  background: var(--color-volt);
+  border: 3px solid var(--color-midnight);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-volt) 70%, transparent);
   cursor: pointer;
 }
 

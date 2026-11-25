@@ -72,7 +72,7 @@ export default function LiveChart({ profile }: { profile: ChartProfile }) {
   const area = `${line} L${(N * STEP).toFixed(1)} ${H} L0 ${H} Z`;
 
   return (
-    <svg className="h-24 w-full" viewBox={`0 0 ${W + 12} ${H}`} fill="none" role="img" aria-label="Live load curve (illustrative)">
+    <svg className="h-24 w-full text-alabaster" viewBox={`0 0 ${W + 12} ${H}`} fill="none" role="img" aria-label="Live load curve (illustrative)">
       <defs>
         <linearGradient id="wh-fill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#10B981" stopOpacity="0.35" />
@@ -89,7 +89,7 @@ export default function LiveChart({ profile }: { profile: ChartProfile }) {
       </defs>
 
       {[45, 68].map((y) => (
-        <line key={y} x1="0" x2={W} y1={y} y2={y} stroke="rgba(248,250,252,0.06)" />
+        <line key={y} x1="0" x2={W} y1={y} y2={y} stroke="currentColor" strokeOpacity="0.1" />
       ))}
       <line x1="0" y1="22" x2={W} y2="22" stroke="rgba(16,185,129,0.5)" strokeWidth="1" strokeDasharray="4 4" />
 
@@ -112,7 +112,7 @@ export default function LiveChart({ profile }: { profile: ChartProfile }) {
         <circle r="8" fill="#10B981" opacity="0.2">
           <animate attributeName="r" values="4;12;4" dur="1.6s" repeatCount="indefinite" />
         </circle>
-        <circle r="3.6" fill="#10B981" stroke="#0B1120" strokeWidth="1.5" />
+        <circle r="3.6" fill="#10B981" className="stroke-midnight" strokeWidth="1.5" />
       </g>
     </svg>
   );

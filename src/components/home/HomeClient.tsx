@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import HeroCircuit from "./HeroCircuit";
 import LiveChart, { type ChartProfile } from "./LiveChart";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const display = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["600", "700", "800"] });
 const H = display.className;
@@ -147,80 +148,80 @@ const BENTO: {
   text: string;
   foot: React.ReactNode;
 }[] = [
-  {
-    icon: Network,
-    title: "Multi-Tenant Hierarchy",
-    text: "Model complex portfolios with strict relational isolation from Organization down to individual sub-meters.",
-    foot: (
-      <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px] text-volt">
-        {["Org", "Building", "Floor", "Meter"].map((s, i) => (
-          <span key={s} className="flex items-center gap-1.5">
-            {i > 0 && <span>→</span>}
-            <span className="rounded border border-volt/25 bg-volt/10 px-2 py-0.5">{s}</span>
-          </span>
-        ))}
-      </div>
-    ),
-  },
-  {
-    icon: Database,
-    title: "High-Volume Time-Series Engine",
-    text: "Server-side rollups across hourly, daily and monthly intervals, with debounced search and pagination over 100,000+ readings.",
-    foot: (
-      <div className="flex items-center justify-between font-mono text-xs text-alabaster/60">
-        <span>Server-Side Aggregation</span>
-        <span className="font-bold text-volt">MongoDB</span>
-      </div>
-    ),
-  },
-  {
-    icon: BellRing,
-    title: "Threshold & Anomaly Detection",
-    text: "Configure building and meter limits with automated High Usage and Unusual Consumption alerts, tracked through a full lifecycle.",
-    foot: (
-      <div className="flex items-center gap-2 font-mono text-[10px]">
-        <span className="rounded bg-volt px-2 py-0.5 font-bold text-midnight">New</span>
-        <span className="text-alabaster/40">→</span>
-        <span className="rounded border border-volt/30 bg-volt/15 px-2 py-0.5 text-volt">Acknowledged</span>
-        <span className="text-alabaster/40">→</span>
-        <span className="rounded bg-alabaster/10 px-2 py-0.5 text-alabaster/75">Resolved</span>
-      </div>
-    ),
-  },
-  {
-    icon: ShieldCheck,
-    title: "Role-Based Access Control",
-    text: "Organization isolation, department-scoped visibility and read-only viewer protection, enforced on the server.",
-    foot: (
-      <div className="flex items-center justify-between font-mono text-xs text-alabaster/60">
-        <span>4 Governance Scopes</span>
-        <span className="font-semibold text-volt">Org-isolated RBAC</span>
-      </div>
-    ),
-  },
-  {
-    icon: Sparkles,
-    title: "Energy Insights & Anomalies",
-    text: "Pinpoint off-hours spikes, rank peak-load drivers and estimate CO₂e from your real consumption data.",
-    foot: (
-      <div className="flex items-center justify-between font-mono text-xs text-alabaster/60">
-        <span>Statistical z-score detection</span>
-        <span className="font-semibold text-volt">Saving tips</span>
-      </div>
-    ),
-  },
-  {
-    icon: FileSpreadsheet,
-    title: "Instant CSV & Audit Reporting",
-    text: "Custom date-range reports by building, department, meter or day, plus streamed CSV export of raw records.",
-    foot: (
-      <div className="flex items-center justify-between font-mono text-xs text-alabaster/60">
-        <span>1-Click Export</span>
-        <span className="font-semibold text-volt">CSV</span>
-      </div>
-    ),
-  },
-];
+    {
+      icon: Network,
+      title: "Multi-Tenant Hierarchy",
+      text: "Model complex portfolios with strict relational isolation from Organization down to individual sub-meters.",
+      foot: (
+        <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px] text-volt">
+          {["Org", "Building", "Floor", "Meter"].map((s, i) => (
+            <span key={s} className="flex items-center gap-1.5">
+              {i > 0 && <span>→</span>}
+              <span className="rounded border border-volt/25 bg-volt/10 px-2 py-0.5">{s}</span>
+            </span>
+          ))}
+        </div>
+      ),
+    },
+    {
+      icon: Database,
+      title: "High-Volume Time-Series Engine",
+      text: "Server-side rollups across hourly, daily and monthly intervals, with debounced search and pagination over 100,000+ readings.",
+      foot: (
+        <div className="flex items-center justify-between font-mono text-xs text-alabaster/60">
+          <span>Server-Side Aggregation</span>
+          <span className="font-bold text-volt">MongoDB</span>
+        </div>
+      ),
+    },
+    {
+      icon: BellRing,
+      title: "Threshold & Anomaly Detection",
+      text: "Configure building and meter limits with automated High Usage and Unusual Consumption alerts, tracked through a full lifecycle.",
+      foot: (
+        <div className="flex items-center gap-2 font-mono text-[10px]">
+          <span className="rounded bg-volt px-2 py-0.5 font-bold text-midnight">New</span>
+          <span className="text-alabaster/40">→</span>
+          <span className="rounded border border-volt/30 bg-volt/15 px-2 py-0.5 text-volt">Acknowledged</span>
+          <span className="text-alabaster/40">→</span>
+          <span className="rounded bg-alabaster/10 px-2 py-0.5 text-alabaster/75">Resolved</span>
+        </div>
+      ),
+    },
+    {
+      icon: ShieldCheck,
+      title: "Role-Based Access Control",
+      text: "Organization isolation, department-scoped visibility and read-only viewer protection, enforced on the server.",
+      foot: (
+        <div className="flex items-center justify-between font-mono text-xs text-alabaster/60">
+          <span>4 Governance Scopes</span>
+          <span className="font-semibold text-volt">Org-isolated RBAC</span>
+        </div>
+      ),
+    },
+    {
+      icon: Sparkles,
+      title: "Energy Insights & Anomalies",
+      text: "Pinpoint off-hours spikes, rank peak-load drivers and estimate CO₂e from your real consumption data.",
+      foot: (
+        <div className="flex items-center justify-between font-mono text-xs text-alabaster/60">
+          <span>Statistical z-score detection</span>
+          <span className="font-semibold text-volt">Saving tips</span>
+        </div>
+      ),
+    },
+    {
+      icon: FileSpreadsheet,
+      title: "Instant CSV & Audit Reporting",
+      text: "Custom date-range reports by building, department, meter or day, plus streamed CSV export of raw records.",
+      foot: (
+        <div className="flex items-center justify-between font-mono text-xs text-alabaster/60">
+          <span>1-Click Export</span>
+          <span className="font-semibold text-volt">CSV</span>
+        </div>
+      ),
+    },
+  ];
 
 type RbacKey = "admin" | "facility" | "department" | "viewer";
 
@@ -360,6 +361,7 @@ export default function HomeClient({ loggedIn }: { loggedIn: boolean }) {
             ))}
           </nav>
 
+
           <div className="flex items-center gap-2.5 sm:gap-3">
             {!loggedIn && (
               <Link
@@ -384,7 +386,12 @@ export default function HomeClient({ loggedIn }: { loggedIn: boolean }) {
             >
               {menuOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
+
+            <ThemeToggle className="border-alabaster/20 bg-alabaster/5 text-alabaster hover:border-volt hover:text-volt" />
+
           </div>
+
+
         </div>
 
         {menuOpen && (
@@ -405,7 +412,7 @@ export default function HomeClient({ loggedIn }: { loggedIn: boolean }) {
 
       {/* ============ HERO ============ */}
       <section id="top" className="relative overflow-hidden pb-20 pt-12 sm:pb-28 sm:pt-16 lg:pb-32 lg:pt-20">
-        
+
         <HeroCircuit />
 
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -486,11 +493,10 @@ export default function HomeClient({ loggedIn }: { loggedIn: boolean }) {
                           setSector(k);
                           setJitter(0);
                         }}
-                        className={`flex-1 cursor-pointer rounded-lg px-2 py-1.5 text-[11px] transition-all ${
-                          sector === k
-                            ? "bg-volt font-bold text-midnight shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                            : "font-semibold text-alabaster/65 hover:text-alabaster"
-                        }`}
+                        className={`flex-1 cursor-pointer rounded-lg px-2 py-1.5 text-[11px] transition-all ${sector === k
+                          ? "bg-volt font-bold text-midnight shadow-[0_0_15px_rgba(16,185,129,0.3)]"
+                          : "font-semibold text-alabaster/65 hover:text-alabaster"
+                          }`}
                       >
                         {SECTORS[k].tab}
                       </button>
@@ -727,11 +733,10 @@ export default function HomeClient({ loggedIn }: { loggedIn: boolean }) {
                 key={k}
                 type="button"
                 onClick={() => setRbac(k)}
-                className={`cursor-pointer rounded-2xl px-4 py-2.5 text-xs transition-all sm:px-5 sm:text-sm ${
-                  rbac === k
-                    ? "bg-volt font-bold text-midnight shadow-[0_0_24px_rgba(16,185,129,0.35)]"
-                    : "border border-alabaster/15 bg-alabaster/[0.04] font-semibold text-alabaster/75 hover:border-volt"
-                }`}
+                className={`cursor-pointer rounded-2xl px-4 py-2.5 text-xs transition-all sm:px-5 sm:text-sm ${rbac === k
+                  ? "bg-volt font-bold text-midnight shadow-[0_0_24px_rgba(16,185,129,0.35)]"
+                  : "border border-alabaster/15 bg-alabaster/[0.04] font-semibold text-alabaster/75 hover:border-volt"
+                  }`}
               >
                 {RBAC[k].tab}
               </button>
@@ -772,11 +777,10 @@ export default function HomeClient({ loggedIn }: { loggedIn: boolean }) {
                           >
                             <span className="text-xs font-medium text-alabaster/85 sm:text-sm">{c.label}</span>
                             <span
-                              className={`shrink-0 rounded-md px-2.5 py-0.5 font-mono text-[10px] font-bold ${
-                                locked
-                                  ? "border border-alabaster/15 bg-alabaster/10 text-alabaster/50"
-                                  : "border border-volt/35 bg-volt/15 text-volt"
-                              }`}
+                              className={`shrink-0 rounded-md px-2.5 py-0.5 font-mono text-[10px] font-bold ${locked
+                                ? "border border-alabaster/15 bg-alabaster/10 text-alabaster/50"
+                                : "border border-volt/35 bg-volt/15 text-volt"
+                                }`}
                             >
                               {c.status}
                             </span>
