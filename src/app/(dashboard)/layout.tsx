@@ -10,6 +10,8 @@ import { Meter } from "@/models/Meter";
 import { EnergyRecord } from "@/models/EnergyRecord";
 import { Alert } from "@/models/Alert";
 
+export const instant = false;
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
   await connectDB();
