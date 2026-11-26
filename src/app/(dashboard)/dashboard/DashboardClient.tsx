@@ -13,8 +13,6 @@ import { useApi } from "@/hooks/useApi";
 import { fmtBdt, fmtDateTime, fmtNum } from "@/lib/format";
 import type { Role } from "@/lib/rbac";
 import type { DashboardData, DistMode, Granularity } from "@/types/dashboard";
-import ConfirmDialog from "@/components/ConfirmDialog";
-import { useConfirmDelete } from "@/hooks/useConfirmDelete";
 
 
 export default function DashboardClient({ role }: { role: Role }) {

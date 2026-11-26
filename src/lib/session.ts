@@ -4,8 +4,27 @@ import { auth } from "./auth";
 import type { Role } from "./rbac";
 
 export async function getSessionUser() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  return session?.user ?? null;
+  const reqHeaders = await headers();
+  try {
+    const session = await auth.api.getSession({ headers: reqHeaders });
+    return session?.user ?? null;
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "digest" in error &&
+      typeof (error as { digest: unknown }).digest === "string" &&
+      (error as { digest: string }).digest.startsWith("NEXT_")
+    ) {
+      throw error;
+    }
+    const message =
+      error instanceof Error
+        ? error.message.replace(/mongodb(?:\+srv)?:\/\/[^\s]+/gi, "[REDACTED_URI]")
+        : "Unknown error";
+    console.error("[session] Failed to get session user:", message);
+    return null;
+  }
 }
 
 // Page/layout er jonno

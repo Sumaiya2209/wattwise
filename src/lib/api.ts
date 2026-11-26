@@ -23,6 +23,12 @@ export function handleServerError(e: unknown) {
   if (typeof e === "object" && e && "code" in e && (e as { code: number }).code === 11000) {
     return apiError("This record already exists (duplicate)", 409);
   }
-  console.error(e);
+  if (e instanceof Error) {
+    const safeMsg = e.message.replace(/mongodb(?:\+srv)?:\/\/[^\s]+/gi, "[REDACTED_URI]");
+    const safeStack = e.stack?.replace(/mongodb(?:\+srv)?:\/\/[^\s]+/gi, "[REDACTED_URI]");
+    console.error("[ServerError]:", safeMsg, safeStack ?? "");
+  } else {
+    console.error("[ServerError]:", e);
+  }
   return apiError("Internal server error", 500);
 }

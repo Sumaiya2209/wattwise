@@ -22,12 +22,26 @@ const cached: MongooseCache = global.mongooseCache ?? {
 global.mongooseCache = cached;
 
 export async function connectDB() {
-  if (cached.conn) return cached.conn;
+  if (cached.conn && mongoose.connection.readyState === 1) {
+    return cached.conn;
+  }
 
-  cached.promise ??= mongoose.connect(MONGODB_URI as string, {
-    bufferCommands: false,
-  });
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 10,
+    };
+    cached.promise = mongoose.connect(MONGODB_URI as string, opts).then((m) => m);
+  }
 
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
   return cached.conn;
 }

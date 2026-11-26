@@ -7,14 +7,24 @@ if (!uri) {
   throw new Error("MONGODB_URI .env file e set kora nai");
 }
 
-// Hot reload e jate notun client na banay, global e cache kora
+const mongoClientOptions = {
+  serverSelectionTimeoutMS: 5000,
+  connectTimeoutMS: 10000,
+  maxPoolSize: 10,
+};
+
+// Global cache so serverless invocations and hot reload reuse the connection pool
 const globalForMongo = globalThis as unknown as {
   authMongoClient?: MongoClient;
 };
-const client =
-  process.env.NODE_ENV === "development"
-    ? (globalForMongo.authMongoClient ??= new MongoClient(uri))
-    : new MongoClient(uri);
+
+if (
+  !globalForMongo.authMongoClient ||
+  (globalForMongo.authMongoClient as unknown as { topology?: { isClosed?: () => boolean } }).topology?.isClosed?.()
+) {
+  globalForMongo.authMongoClient = new MongoClient(uri, mongoClientOptions);
+}
+const client = globalForMongo.authMongoClient;
 
 const db = client.db();
 
