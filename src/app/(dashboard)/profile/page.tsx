@@ -5,6 +5,8 @@ import { Organization } from "@/models/Organization";
 import { Department } from "@/models/Department";
 import ProfileClient from "./ProfileClient";
 
+export const instant = false;
+
 export default async function ProfilePage() {
   const user = await requireUser();
   await connectDB();
