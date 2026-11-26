@@ -18,7 +18,7 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label="Toggle theme"
-      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={mounted ? (isDark ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme"}
       className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all hover:scale-105 active:scale-95 ${className}`}
     >
       {mounted ? (

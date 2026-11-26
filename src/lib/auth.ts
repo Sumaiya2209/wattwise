@@ -11,24 +11,51 @@ if (!uri) {
 const globalForMongo = globalThis as unknown as {
   authMongoClient?: MongoClient;
 };
-const client = globalForMongo.authMongoClient ?? new MongoClient(uri);
-globalForMongo.authMongoClient = client;
+const client =
+  process.env.NODE_ENV === "development"
+    ? (globalForMongo.authMongoClient ??= new MongoClient(uri))
+    : new MongoClient(uri);
 
 const db = client.db();
 
+function normalizeAuthOrigin(value: string | undefined) {
+  if (!value) return undefined;
+  const withScheme = /^https?:\/\//i.test(value)
+    ? value
+    : `${/^(localhost|127(?:\.\d{1,3}){3})(:\d+)?(?:\/|$)/i.test(value) ? "http" : "https"}://${value}`;
+  const url = new URL(withScheme);
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error("Auth URL must use http:// or https://");
+  }
+  return url.origin;
+}
+
+const baseURL =
+  normalizeAuthOrigin(process.env.BETTER_AUTH_URL) ??
+  normalizeAuthOrigin(process.env.NEXT_PUBLIC_APP_URL) ??
+  normalizeAuthOrigin(process.env.VERCEL_URL) ??
+  "http://localhost:3000";
+
+const baseHostname = new URL(baseURL).hostname;
+if (
+  process.env.VERCEL &&
+  (baseHostname === "localhost" || baseHostname === "127.0.0.1" || baseHostname === "::1")
+) {
+  throw new Error("On Vercel, BETTER_AUTH_URL must use the deployed public URL.");
+}
+
 const trustedOrigins = [
-  process.env.BETTER_AUTH_URL,
-  process.env.NEXT_PUBLIC_APP_URL,
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
-  process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : undefined,
-  process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : undefined,
+  baseURL,
+  normalizeAuthOrigin(process.env.BETTER_AUTH_URL),
+  normalizeAuthOrigin(process.env.NEXT_PUBLIC_APP_URL),
+  normalizeAuthOrigin(process.env.VERCEL_URL),
+  normalizeAuthOrigin(process.env.VERCEL_BRANCH_URL),
+  normalizeAuthOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL),
   "https://wattwise-blond.vercel.app",
 ].filter((origin): origin is string => Boolean(origin));
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL,
+  baseURL,
   trustedOrigins,
   database: mongodbAdapter(db),
   emailAndPassword: { enabled: true },
