@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Bell,
@@ -62,13 +63,27 @@ export default function Sidebar({
   onClose: () => void;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
   const items = NAV_ITEMS.filter((i) => i.roles.includes(user.role));
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
 
   async function handleSignOut() {
-    await signOut();
-    router.push("/login");
-    router.refresh();
+    setSigningOut(true);
+    setSignOutError("");
+    try {
+      const { error } = await signOut();
+      if (error) {
+        console.error("[auth] Sign out failed:", error.message);
+        setSignOutError("Could not sign out. Please try again.");
+        return;
+      }
+      window.location.replace("/login");
+    } catch (error) {
+      console.error("[auth] Sign out request failed:", error);
+      setSignOutError("Could not sign out. Please try again.");
+    } finally {
+      setSigningOut(false);
+    }
   }
 
   return (
@@ -155,6 +170,11 @@ export default function Sidebar({
 
         {/* Footer */}
         <div className="space-y-3 border-t border-[var(--ww-border)] p-4">
+          {signOutError && (
+            <p role="alert" className="text-xs text-red-500">
+              {signOutError}
+            </p>
+          )}
           <div className="ww-panel-2 rounded-2xl p-3">
             <p className="flex items-center gap-2 text-sm font-semibold text-[var(--ww-text)]">
               <Database size={15} className="text-emerald-500" /> Time-Series Engine
@@ -176,8 +196,9 @@ export default function Sidebar({
             <button
               onClick={handleSignOut}
               aria-label="Sign out"
-              title="Sign out"
-              className="rounded-lg p-2 ww-muted hover:bg-red-500/10 hover:text-red-500"
+              title={signingOut ? "Signing out..." : "Sign out"}
+              disabled={signingOut}
+              className="rounded-lg p-2 ww-muted hover:bg-red-500/10 hover:text-red-500 disabled:cursor-wait disabled:opacity-50"
             >
               <LogOut size={17} />
             </button>

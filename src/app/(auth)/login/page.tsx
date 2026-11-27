@@ -97,7 +97,8 @@ export default function LoginPage() {
     });
     if (error) {
       setLoading(false);
-      setError(error.message ?? "Invalid email or password");
+      const detail = error.message || error.statusText || "Sign-in failed";
+      setError(error.status ? `${detail} (${error.status})` : detail);
       setShakeKey((k) => k + 1);
       return;
     }
@@ -168,14 +169,14 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => pickRole(r)}
                     className={`flex items-center gap-2.5 rounded-xl border p-2.5 text-left transition-all duration-300 hover:-translate-y-0.5 ${active
-                        ? "border-emerald-500/70 bg-emerald-50 shadow-[0_0_20px_-4px_rgba(16,185,129,0.5)] dark:bg-emerald-500/10"
-                        : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25"
+                      ? "border-emerald-500/70 bg-emerald-50 shadow-[0_0_20px_-4px_rgba(16,185,129,0.5)] dark:bg-emerald-500/10"
+                      : "border-gray-200 bg-white hover:border-gray-300 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/25"
                       }`}
                   >
                     <span
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors ${active
-                          ? "bg-emerald-500 text-white dark:text-[#04120c]"
-                          : "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300"
+                        ? "bg-emerald-500 text-white dark:text-[#04120c]"
+                        : "bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300"
                         }`}
                     >
                       <Icon size={17} />

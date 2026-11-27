@@ -62,6 +62,9 @@ const trustedOrigins = [
   normalizeAuthOrigin(process.env.VERCEL_BRANCH_URL),
   normalizeAuthOrigin(process.env.VERCEL_PROJECT_PRODUCTION_URL),
   "https://wattwise-blond.vercel.app",
+  ...(process.env.NODE_ENV === "development"
+    ? ["http://localhost:3000", "http://127.0.0.1:3000"]
+    : []),
 ].filter((origin): origin is string => Boolean(origin));
 
 export const auth = betterAuth({
