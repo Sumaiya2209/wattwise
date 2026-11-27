@@ -97,7 +97,12 @@ export default function Sidebar({
       >
         {/* Logo */}
         <div className="flex items-center justify-between px-5 pb-3 pt-5">
-          <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            onClick={onClose}
+            aria-label="WattWise home"
+            className="flex items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-500"
+          >
             <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-emerald-500">
               <Zap size={22} />
             </span>
@@ -105,7 +110,7 @@ export default function Sidebar({
               <p className="text-xl font-bold leading-tight text-[var(--ww-text)]">WattWise</p>
               <p className="text-xs ww-muted">Energy Intelligence</p>
             </div>
-          </div>
+          </Link>
           <button onClick={onClose} className="rounded-lg p-1.5 ww-muted hover:bg-[var(--ww-panel2)] lg:hidden" aria-label="Close menu">
             <X size={18} />
           </button>
