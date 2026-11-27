@@ -39,7 +39,7 @@ body {
   --color-midnight: #f3f6f5;
   --color-volt: #059669;
   --color-alabaster: #0e1d18;
-  --hm-nav-bg: rgba(243, 246, 245, 0.82);
+  --hm-nav-bg: #f3f6f5;
   --hm-nav-border: rgba(15, 23, 42, 0.1);
   --hm-card-bg: rgba(255, 255, 255, 0.85);
   --hm-card-border: rgba(15, 23, 42, 0.1);
@@ -65,7 +65,7 @@ body {
   --color-midnight: #0b1120;
   --color-volt: #10b981;
   --color-alabaster: #f8fafc;
-  --hm-nav-bg: rgba(11, 17, 32, 0.78);
+  --hm-nav-bg: #0b1120;
   --hm-nav-border: rgba(248, 250, 252, 0.08);
   --hm-card-bg: rgba(11, 17, 32, 0.68);
   --hm-card-border: rgba(248, 250, 252, 0.08);

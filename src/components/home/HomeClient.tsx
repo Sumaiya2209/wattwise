@@ -317,7 +317,7 @@ export default function HomeClient({ loggedIn }: { loggedIn: boolean }) {
   const fmt = (n: number) => n.toLocaleString("en-US");
 
   return (
-    <div className="hm-grid relative min-h-screen overflow-x-hidden bg-midnight font-sans text-alabaster antialiased selection:bg-volt selection:text-midnight">
+    <div className="hm-grid relative min-h-screen overflow-x-clip bg-midnight font-sans text-alabaster antialiased selection:bg-volt selection:text-midnight">
       {/* ambient orbs */}
       <div
         className="hm-orb pointer-events-none fixed -left-40 -top-40 z-0 h-[560px] w-[560px] rounded-full"
@@ -718,7 +718,7 @@ export default function HomeClient({ loggedIn }: { loggedIn: boolean }) {
 
 
       {/* ============ CTA + FOOTER ============ */}
-      <footer id="impact" className="relative pb-12 pt-20">
+      <footer id="architecture" className="relative scroll-mt-20 pb-12 pt-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
             <div className="hm-card relative mb-16 overflow-hidden rounded-[2rem] border-volt/35 p-8 text-center sm:p-12 lg:p-14">

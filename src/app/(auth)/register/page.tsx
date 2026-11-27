@@ -45,7 +45,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="ww-shell relative flex min-h-screen flex-col overflow-hidden">
+    <main className="ww-shell relative flex min-h-screen flex-col overflow-x-clip">
       <HomeNavbar loggedIn={false} />
       <div className="relative flex flex-1 items-center justify-center p-4 py-10">
       <div className="ww-grid pointer-events-none absolute inset-0" />

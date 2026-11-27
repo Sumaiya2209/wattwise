@@ -104,7 +104,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col overflow-hidden bg-slate-100 transition-colors dark:bg-[#070b14]">
+    <main className="relative flex min-h-screen flex-col overflow-x-clip bg-slate-100 transition-colors dark:bg-[#070b14]">
       <HomeNavbar loggedIn={false} />
       <div className="relative flex flex-1 items-center justify-center p-4">
 
