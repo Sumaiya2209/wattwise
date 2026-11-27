@@ -1,32 +1,6 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { MongoClient } from "mongodb";
-
-const uri = process.env.MONGODB_URI;
-if (!uri) {
-  throw new Error("MONGODB_URI .env file e set kora nai");
-}
-
-const mongoClientOptions = {
-  serverSelectionTimeoutMS: 5000,
-  connectTimeoutMS: 10000,
-  maxPoolSize: 10,
-};
-
-// Global cache so serverless invocations and hot reload reuse the connection pool
-const globalForMongo = globalThis as unknown as {
-  authMongoClient?: MongoClient;
-};
-
-if (
-  !globalForMongo.authMongoClient ||
-  (globalForMongo.authMongoClient as unknown as { topology?: { isClosed?: () => boolean } }).topology?.isClosed?.()
-) {
-  globalForMongo.authMongoClient = new MongoClient(uri, mongoClientOptions);
-}
-const client = globalForMongo.authMongoClient;
-
-const db = client.db();
+import { resilientDb, resilientClient } from "./mongodb";
 
 function normalizeAuthOrigin(value: string | undefined) {
   if (!value) return undefined;
@@ -70,7 +44,7 @@ const trustedOrigins = [
 export const auth = betterAuth({
   baseURL,
   trustedOrigins,
-  database: mongodbAdapter(db),
+  database: mongodbAdapter(resilientDb, { client: resilientClient }),
   emailAndPassword: { enabled: true },
   user: {
     additionalFields: {

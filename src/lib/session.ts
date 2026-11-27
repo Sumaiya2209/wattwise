@@ -3,28 +3,51 @@ import { redirect } from "next/navigation";
 import { auth } from "./auth";
 import type { Role } from "./rbac";
 
-export async function getSessionUser() {
+import { resetMongoClient } from "./mongodb";
+
+function isNextBailoutError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "digest" in error &&
+    typeof (error as { digest: unknown }).digest === "string" &&
+    (error as { digest: string }).digest.startsWith("NEXT_")
+  );
+}
+
+function sanitizeErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message.replace(/mongodb(?:\+srv)?:\/\/[^\s]+/gi, "[REDACTED_URI]");
+  }
+  return "Unknown error";
+}
+
+export async function getSession() {
   const reqHeaders = await headers();
   try {
-    const session = await auth.api.getSession({ headers: reqHeaders });
-    return session?.user ?? null;
+    return await auth.api.getSession({ headers: reqHeaders });
   } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "digest" in error &&
-      typeof (error as { digest: unknown }).digest === "string" &&
-      (error as { digest: string }).digest.startsWith("NEXT_")
-    ) {
+    if (isNextBailoutError(error)) {
       throw error;
     }
-    const message =
-      error instanceof Error
-        ? error.message.replace(/mongodb(?:\+srv)?:\/\/[^\s]+/gi, "[REDACTED_URI]")
-        : "Unknown error";
-    console.error("[session] Failed to get session user:", message);
-    return null;
+
+    // Retry once after resetting MongoClient in case of transient topology/connection drops
+    try {
+      resetMongoClient();
+      return await auth.api.getSession({ headers: reqHeaders });
+    } catch (retryError) {
+      if (isNextBailoutError(retryError)) {
+        throw retryError;
+      }
+      console.warn("[session] Failed to get session:", sanitizeErrorMessage(retryError));
+      return null;
+    }
   }
+}
+
+export async function getSessionUser() {
+  const session = await getSession();
+  return session?.user ?? null;
 }
 
 // Page/layout er jonno
