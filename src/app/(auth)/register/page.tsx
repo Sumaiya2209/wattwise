@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Zap } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
+import HomeNavbar from "@/components/home/HomeNavbar";
 import FormField, { inputCls } from "@/components/FormField";
 import { InlineError } from "@/components/FormButtons";
 import { signIn } from "@/lib/auth-client";
@@ -45,10 +45,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="ww-shell relative flex min-h-screen items-center justify-center overflow-hidden p-4 py-10">
+    <main className="ww-shell relative flex min-h-screen flex-col overflow-hidden">
+      <HomeNavbar loggedIn={false} />
+      <div className="relative flex flex-1 items-center justify-center p-4 py-10">
       <div className="ww-grid pointer-events-none absolute inset-0" />
       <div className="ww-glow pointer-events-none absolute -left-40 -top-40 h-[480px] w-[480px] rounded-full bg-emerald-400/30 blur-[120px] dark:bg-emerald-500/30" />
-      <ThemeToggle className="ww-panel-2 ww-muted absolute right-4 top-4 z-10 hover:text-emerald-500" />
 
       <div className="ww-fade-up ww-panel relative w-full max-w-md p-7 shadow-2xl backdrop-blur-xl sm:p-8">
         <div className="flex items-center gap-3">
@@ -101,6 +102,7 @@ export default function RegisterPage() {
         <Link href="/login" className="mt-5 flex items-center justify-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-500 dark:text-emerald-400">
           <ArrowLeft size={14} /> Back to sign in
         </Link>
+      </div>
       </div>
     </main>
   );

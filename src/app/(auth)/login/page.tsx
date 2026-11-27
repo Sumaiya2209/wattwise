@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  ArrowUpRight,
   Eye,
   EyeOff,
   Layers,
@@ -15,10 +13,9 @@ import {
   Shield,
   SlidersHorizontal,
   Sparkles,
-  Zap,
 } from "lucide-react";
 import { signIn } from "@/lib/auth-client";
-import ThemeToggle from "@/components/ThemeToggle";
+import HomeNavbar from "@/components/home/HomeNavbar";
 
 const DEMO_PASSWORD = "Demo@1234";
 
@@ -107,13 +104,9 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 p-4 transition-colors dark:bg-[#070b14]">
-
-      <Link href="/" className="absolute left-4 top-4 z-10 flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white/80 px-3 py-2 text-sm font-medium text-gray-700 backdrop-blur hover:text-emerald-600 dark:border-white/15 dark:bg-white/5 dark:text-gray-300">
-        ← Home
-      </Link>
-      {/* theme toggle */}
-      <ThemeToggle className="absolute right-4 top-4 z-10 border-gray-300 bg-white/80 text-gray-700 shadow-sm backdrop-blur hover:border-emerald-500 hover:text-emerald-600 dark:border-white/15 dark:bg-white/5 dark:text-gray-300 dark:hover:border-emerald-500/60 dark:hover:text-emerald-400" />
+    <main className="relative flex min-h-screen flex-col overflow-hidden bg-slate-100 transition-colors dark:bg-[#070b14]">
+      <HomeNavbar loggedIn={false} />
+      <div className="relative flex flex-1 items-center justify-center p-4">
 
       {/* animated background */}
       <div className="ww-grid pointer-events-none absolute inset-0" />
@@ -288,24 +281,8 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* footer */}
-          <div
-            className="ww-fade-up mt-6 flex items-center justify-between border-t border-gray-200 pt-5 text-xs dark:border-white/10"
-            style={{ animationDelay: "0.5s" }}
-          >
-            <span className="text-gray-500">Deploying a new facility network?</span>
-            <Link
-              href="/register"
-              className="flex items-center gap-1 font-medium text-emerald-700 hover:text-emerald-600 dark:text-emerald-400 dark:hover:text-emerald-300"
-            >
-              Provision Organization <ArrowUpRight size={13} />
-            </Link>
-          </div>
         </div>
-
-        <p className="mt-5 flex items-center justify-center gap-1.5 text-xs text-gray-500 dark:text-gray-600">
-          <Zap size={12} className="text-emerald-500" /> WattWise Energy Intelligence
-        </p>
+      </div>
       </div>
     </main>
   );
